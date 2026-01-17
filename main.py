@@ -1,5 +1,11 @@
 import socket
 import struct
+import pandas as pd
+from excel.importDataToExcel import append_to_excel
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+EXCEL_PATH = os.path.join(BASE_DIR, "excel", "telemetryData.xlsx")
 
 UDP_IP = "0.0.0.0"
 UDP_PORT = 20777
@@ -71,6 +77,8 @@ def unpack_car_telemetry(data, offset):
     }, offset + size
 
 
+rows = []
+
 while True:
     data, addr = sock.recvfrom(2048)
 
@@ -84,9 +92,26 @@ while True:
 
         player_car, _ = unpack_car_telemetry(data, player_offset)
 
-        print(
-            player_car
-        )
+        player_car_data = {
+            "speed": player_car['speed'],
+            "throttle": player_car['throttle'],
+            "steer": player_car['steer'],
+            "brake": player_car['brake'],
+            "gear": player_car['gear'],
+            "breakTemperatureFL": player_car['brakesTemperature'][0],
+            "breakTemperatureFR": player_car['brakesTemperature'][1],
+            "breakTemperatureRL": player_car['brakesTemperature'][2],
+            "breakTemperatureRR": player_car['brakesTemperature'][3]
+        }
+
+        rows.append(player_car_data)
+
+        if len(rows) > 200:
+            df = pd.DataFrame(rows)
+            append_to_excel(df)
+            print("DATA SAVE")
+            rows.clear()
+
 
 
 
