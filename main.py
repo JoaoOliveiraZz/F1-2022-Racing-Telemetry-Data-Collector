@@ -98,6 +98,7 @@ while True:
             "steer": player_car['steer'],
             "brake": player_car['brake'],
             "gear": player_car['gear'],
+            "drs": player_car['drs'],
             "breakTemperatureFL": player_car['brakesTemperature'][0],
             "breakTemperatureFR": player_car['brakesTemperature'][1],
             "breakTemperatureRL": player_car['brakesTemperature'][2],
