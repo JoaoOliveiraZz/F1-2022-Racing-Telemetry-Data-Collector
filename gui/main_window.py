@@ -1,6 +1,7 @@
 import sys
 import pandas as pd
-from PySide6.QtWidgets import QApplication, QWidget, QGridLayout, QLabel, QHBoxLayout
+from PySide6.QtWidgets import QApplication, QWidget, QGridLayout, QLabel, QHBoxLayout, QGraphicsDropShadowEffect
+from PySide6.QtGui import QColor
 import pyqtgraph as pg
 from PySide6.QtCore import QTimer
 
@@ -46,29 +47,65 @@ speed_curve = create_plot("Speed (km/h)", 0, 0)
 steer_curve = create_plot("Steer", 0, 1)
 throttle_curve, brake_curve = create_plot("Throttle and Brake", 1, 0)
 
-# drs_value = 'DISABLED'
-# drs_label = QLabel(f"DRS: {drs_value}")
-# drs_label.setStyleSheet("""
-#     QLabel{
-#         color: white;
-#         font-size: 18px;
-#         font-weight: bold
-#     }
-# """)
-# layout.addWidget(drs_label, 2, 1, 1, 2)
+drs_container = QWidget()
+drs_layout = QHBoxLayout(drs_container)
+drs_layout.setSpacing(10)
+drs_layout.setContentsMargins(0, 0, 0, 0)
 
-bottom_panel = QWidget()
-bottom_panel.setStyleSheet("""
+drs_label = QLabel(f"DRS")
+drs_label.setStyleSheet("""
+    QLabel{
+        color: white;
+        font-size: 18px;
+        font-weight: bold
+    }
+""")
+
+drs_indicator = QLabel()
+drs_indicator.setFixedSize(20, 20)
+drs_indicator.setStyleSheet("""
+    QLabel {
+        background-color: #ff0000;
+        border-radius: 8px;
+    }
+""")
+
+drs_glow = QGraphicsDropShadowEffect()
+drs_glow.setBlurRadius(20)
+drs_glow.setOffset(0, 0)
+drs_glow.setColor(QColor(255, 0, 0))
+
+drs_indicator.setGraphicsEffect(drs_glow)
+
+drs_layout.addWidget(drs_label)
+drs_layout.addWidget(drs_indicator)
+
+bottom_panel_left = QWidget()
+bottom_panel_left.setStyleSheet("""
     QWidget{
         background-color: #000;
         border-radius: 4px
     }
 """)
-bottom_layout = QHBoxLayout(bottom_panel)
-bottom_layout.setSpacing(30)
-bottom_layout.setContentsMargins(20, 15, 20, 15)
+bottom_layout_left = QHBoxLayout(bottom_panel_left)
+bottom_layout_left.setSpacing(30)
+bottom_layout_left.setContentsMargins(20, 15, 20, 15)
 
-layout.addWidget(bottom_panel, 2, 0, 1, 2)
+bottom_panel_right = QWidget()
+bottom_panel_right.setStyleSheet("""
+    QWidget{
+        background-color: #000;
+        border-radius: 4px
+    }
+""")
+bottom_layout_right = QHBoxLayout(bottom_panel_right)
+bottom_layout_right.setSpacing(30)
+bottom_layout_right.setContentsMargins(20, 15, 20, 15)
+
+
+bottom_layout_left.addWidget(drs_container)
+layout.addWidget(bottom_panel_left, 2, 0, 1, 1)
+layout.addWidget(bottom_panel_right, 2, 1, 1, 1)
 
 
 
@@ -88,7 +125,29 @@ def update():
 
     drs_value = "ENABLED" if drs[index] == 1 else "DISABLED"
 
-    # drs_label.setText(f"DRS: {drs_value}")
+    if drs[index] == 1:
+        drs_value = "ENABLED"
+        drs_indicator.setStyleSheet("""
+            QLabel {
+                background-color: #00ff00;
+                border-radius: 10px;
+            }
+        """)
+        drs_glow.setColor(QColor(0, 255, 0))
+        drs_glow.setBlurRadius(25)
+    else:
+        drs_value = "DISABLED"
+        drs_indicator.setStyleSheet("""
+        QLabel {
+                background-color: #ff0000;
+                border-radius: 10px;
+            }
+        """)
+        drs_glow.setColor(QColor(255, 0, 0))
+        drs_glow.setBlurRadius(15)
+
+    drs_label.setText(f"DRS: {drs_value}")
+    
 
     index += 1
 
