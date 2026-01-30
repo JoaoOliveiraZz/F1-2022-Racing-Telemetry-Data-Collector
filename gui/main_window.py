@@ -17,6 +17,7 @@ steer = df["steer"].values
 throttle = df["throttle"].values
 brake = df["brake"].values
 drs = df["drs"].values
+gear = df["gear"].values
 
 
 app = QApplication(sys.argv)
@@ -80,6 +81,22 @@ drs_indicator.setGraphicsEffect(drs_glow)
 drs_layout.addWidget(drs_label)
 drs_layout.addWidget(drs_indicator)
 
+gear_container = QWidget()
+gear_layout = QHBoxLayout(gear_container)
+gear_layout.setSpacing(30)
+gear_layout.setContentsMargins(0, 0, 0, 0)
+
+gear_label = QLabel("GEAR: ")
+gear_label.setStyleSheet("""
+    QLabel{
+        color: white;
+        font-size: 18px;
+        font-weight: bold
+    }
+""")
+
+gear_layout.addWidget(gear_label)
+
 bottom_panel_left = QWidget()
 bottom_panel_left.setStyleSheet("""
     QWidget{
@@ -87,7 +104,7 @@ bottom_panel_left.setStyleSheet("""
         border-radius: 4px
     }
 """)
-bottom_layout_left = QHBoxLayout(bottom_panel_left)
+bottom_layout_left = QGridLayout(bottom_panel_left)
 bottom_layout_left.setSpacing(30)
 bottom_layout_left.setContentsMargins(20, 15, 20, 15)
 
@@ -98,12 +115,13 @@ bottom_panel_right.setStyleSheet("""
         border-radius: 4px
     }
 """)
-bottom_layout_right = QHBoxLayout(bottom_panel_right)
+bottom_layout_right = QGridLayout(bottom_panel_right)
 bottom_layout_right.setSpacing(30)
 bottom_layout_right.setContentsMargins(20, 15, 20, 15)
 
 
-bottom_layout_left.addWidget(drs_container)
+bottom_layout_left.addWidget(drs_container, 0, 0, 1, 1)
+bottom_layout_left.addWidget(gear_container, 1, 0, 1, 1)
 layout.addWidget(bottom_panel_left, 2, 0, 1, 1)
 layout.addWidget(bottom_panel_right, 2, 1, 1, 1)
 
@@ -122,6 +140,13 @@ def update():
     steer_curve.setData(steer[start:index])
     throttle_curve.setData(throttle[start:index])
     brake_curve.setData(brake[start:index])
+
+    if gear > 1:
+        gear_label.setText(f"GEAR: {gear[index]}")
+    elif gear < 0:
+        gear_label.setText(f"GEAR: R")
+    else:
+        gear_label.setText(f"GEAR: N")
 
     drs_value = "ENABLED" if drs[index] == 1 else "DISABLED"
 
